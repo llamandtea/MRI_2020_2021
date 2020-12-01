@@ -30,14 +30,18 @@ import org.apache.tika.metadata.Metadata;
  */
 public class TikaIndexer {
 
+    // Per utilizzare tika bisogna prima di tutto creare un'istanza
+    // di Tika
     private static Tika tika;
 
     private static IndexWriter writer;
 
     private static FieldType ft;
 
+    // Non indicizza file troppo grandi
     private static final int MAX_BYTES = 10 * 1024 * 1024; // 10 MBytes
 
+    // Il metodo indicizza una cartella e tutte le sue sottocartelle
     private static void index(File file) {
         if (file.isDirectory()) {
             File[] listFiles = file.listFiles();
@@ -65,6 +69,10 @@ public class TikaIndexer {
                         }
                     }
                     writer.addDocument(doc);
+                    
+                    // Se tika non riesce ad analizzare un file, viene catturata l'eccezione
+                    // generata. NB questo può capitare spesso, quindi l'eccezione viene
+                    // catturata qua per non fermare il loop.
                 } catch (IOException | TikaException ex) {
                     Logger.getLogger(TikaIndexer.class.getName()).log(Level.SEVERE, "Error to index document: {0}", file.getAbsolutePath());
                 }

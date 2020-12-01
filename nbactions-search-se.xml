@@ -10,8 +10,9 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.5.0:exec</goal>
             </goals>
             <properties>
-                <exec.args>-classpath %classpath di.uniba.it.mri2021.tika.TikaIndexer "/home/llamandtea/Documents/documentazione unibo" resources/tika_idx tv</exec.args>
+                <exec.args>-classpath %classpath di.uniba.it.mri2021.lucene.se.SearchSE ./resources/tika_idx "valutazione test task"</exec.args>
                 <exec.executable>java</exec.executable>
+                <exec.workingdir>/home/llamandtea/Documents/progetti_uni/MRI/MRI_2020_2021</exec.workingdir>
             </properties>
         </action>
         <action>
@@ -24,9 +25,10 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.5.0:exec</goal>
             </goals>
             <properties>
-                <exec.args>-agentlib:jdwp=transport=dt_socket,server=n,address=${jpda.address} -classpath %classpath di.uniba.it.mri2021.tika.TikaIndexer "/home/llamandtea/Documents/documentazione unibo" resources/tika_idx tv</exec.args>
+                <exec.args>-agentlib:jdwp=transport=dt_socket,server=n,address=${jpda.address} -classpath %classpath di.uniba.it.mri2021.lucene.se.SearchSE ./resources/tika_idx "valutazione test task"</exec.args>
                 <exec.executable>java</exec.executable>
                 <jpda.listen>true</jpda.listen>
+                <exec.workingdir>/home/llamandtea/Documents/progetti_uni/MRI/MRI_2020_2021</exec.workingdir>
             </properties>
         </action>
         <action>
@@ -39,8 +41,9 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.5.0:exec</goal>
             </goals>
             <properties>
-                <exec.args>-classpath %classpath di.uniba.it.mri2021.tika.TikaIndexer "/home/llamandtea/Documents/documentazione unibo" resources/tika_idx tv</exec.args>
+                <exec.args>-classpath %classpath di.uniba.it.mri2021.lucene.se.SearchSE ./resources/tika_idx "valutazione test task"</exec.args>
                 <exec.executable>java</exec.executable>
+                <exec.workingdir>/home/llamandtea/Documents/progetti_uni/MRI/MRI_2020_2021</exec.workingdir>
             </properties>
         </action>
     </actions>

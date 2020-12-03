@@ -8,6 +8,8 @@ package di.uniba.it.mri2021.tc;
 import di.uniba.it.mri2021.rocchio.BoW;
 import di.uniba.it.mri2021.rocchio.BoWUtils;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +20,7 @@ import java.util.Map;
  */
 public class Rocchio extends TextCategorization {
 
-    private Map<String, BoW> centroids;
+    private Map<String, BoW> centroids = new HashMap();
 
     @Override
     public void train(List<DatasetExample> trainingset) throws IOException {
@@ -36,12 +38,46 @@ public class Rocchio extends TextCategorization {
         for (String c:centroids.keySet()) {
             BoWUtils.scalarProduct(1/count.get(c).floatValue(), centroids.get(c));
         }
+        
+        for (String c : centroids.keySet()) {
+         
+                BoW toSubtract = new BoW();
+                for (String s : centroids.keySet()) {
+                    if (!s.equals(c)) {
+                        
+                        BoWUtils.add(toSubtract, centroids.get(s));
+                    }
+                }
+                
+                centroids.put(c, BoWUtils.subtract(centroids.get(c), toSubtract));
+        }
     }
 
-    @Override
+        @Override
     public List<String> test(List<DatasetExample> testingset) throws IOException {
-        // implement classification
-        throw new UnsupportedOperationException("Not supported yet.");
+        
+        int c = 0;
+        int numdocs = testingset.size();
+        List<String> out = new ArrayList<String>(testingset.size());
+        for (DatasetExample testingExample : testingset) {
+            
+            List<CategoryEntry> currDocCat = new ArrayList<CategoryEntry>(centroids.keySet().size());
+            for (String cat : centroids.keySet()) {
+                
+                double sim = BoWUtils.sim(centroids.get(cat), testingExample.getBow());
+                currDocCat.add(new CategoryEntry(cat, (float) sim));
+            }
+            Collections.sort(currDocCat, Collections.reverseOrder());
+            out.add(currDocCat.get(0).getCategory());
+            
+            c++;
+            if (c % 100 == 0) {
+                
+                System.out.println("Tested documents: " + c + " /" + numdocs);
+        }
     }
+        
+        return out;
+}
 
 }

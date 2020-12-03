@@ -56,6 +56,28 @@ public class BoWUtils {
         }
         return c;
     }
+    
+    public static BoW subtract(BoW... bows) {
+        BoW c = bows[0];
+        for (int i = 1; i < bows.length; i++) {
+            Set<String> words = bows[i].getWords();
+            for (String word : words) {
+                Float w = c.getWeight(word);
+                if (w == null) {
+                    c.putWord(word, bows[i].getWeight(word));
+                } else {
+                    if (w > bows[i].getWeight(word)) {
+                        
+                        c.putWord(word, w - bows[i].getWeight(word));
+                    } else {
+                        
+                        c.putWord(word, 0);
+                    }
+                }
+            }
+        }
+        return c;
+    }
 
     public static float norma2(BoW bow) {
         double n = 0;

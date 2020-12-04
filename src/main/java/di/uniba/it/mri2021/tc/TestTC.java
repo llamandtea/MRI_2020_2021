@@ -20,7 +20,7 @@ public class TestTC {
      * @throws java.io.IOException
      */
     public static void main(String[] args) throws IOException {
-        TextCategorization tc=new Rocchio();
+        TextCategorization tc=new NaiveBayes();
         DatasetReader tr=new CSVDatasetReader();
         tc.train(tr.getExamples(new File("resources/TC/train.csv")));
         DatasetReader ts=new CSVDatasetReader();

@@ -28,14 +28,17 @@ public class NaiveBayes extends TextCategorization {
     
     // Map contenente l'insieme delle probabilità di una parola del vocabolario di
     // comparire all'interno di una categoria
-    Map<String, HashSet<CategoryEntry>> termCategoryProb = new HashMap<String, HashSet<CategoryEntry>>();
+    Map<String, HashMap<String, Float>> termCategoryProb = new HashMap<String, HashMap<String, Float>>();
+    
+    Set<String> vocabulary;
     
     @Override
     public void train(List<DatasetExample> trainingset) throws IOException {
         
-        Set<String> vocabulary = new HashSet<String>(trainingset.size());
         Map<String, BoW> categoryDocuments = new HashMap<String, BoW>();
+        vocabulary = new HashSet<String>(trainingset.size());
         
+        int c = 0;
         for (DatasetExample d : trainingset) {
             
             /*
@@ -54,41 +57,53 @@ public class NaiveBayes extends TextCategorization {
                 // equivale a concatenare i docmenti.
                 categoryDocuments.put(d.getCategory(), BoWUtils.add(categoryDocuments.get(d.getCategory()), d.getBow()));
             }
-            vocabulary.addAll(d.getBow().getWords());
-            
-            for (String cat : categoryProbability.keySet()) {
-                
-                // Aggiorno la map dlle probabilità dividendo il numero dei documenti per quello dei documenti totali
-                categoryProbability.put(cat, categoryProbability.get(cat) / trainingset.size());
+            for (String w : d.getBow().getWords()) {
+                 
+               vocabulary.add(w);
             }
             
-            // freq e totalWords sono Float perché le frequenze nelle BoW sono memorizzate così
-            Float freq;
-            Float totalWords;
-            
-            // Viene avviata la fase finale di training: per ogni parola nel vocabolario
-            // viene memorizzata una lista di coppie  <categoria, probabilità>
-            for (String word : vocabulary) {
+            c++;
+            if (c % 100 == 0) {
+                System.out.println("Trained on: " + c + " /" + trainingset.size());
+            }
+        }
+        for (String cat : categoryProbability.keySet()) {
                 
-                termCategoryProb.put(word, new HashSet<CategoryEntry>(categoryDocuments.keySet().size()));
-                Set<CategoryEntry> prob = termCategoryProb.get(word);
-                
-                for (String cat : categoryDocuments.keySet()) {
+        // Aggiorno la map dlle probabilità dividendo il numero dei documenti per quello dei documenti totali
+            categoryProbability.put(cat, categoryProbability.get(cat) / trainingset.size());
+        }
 
-                    // viene applicata la correzione di Laplace durante l'avvaloramento di freq
-                    freq = categoryDocuments.get(cat).getWeight(word);
-                    freq = ((freq == null) ? 1f : freq + 1);
-                    
-                    totalWords = (float) vocabulary.size();
-                    for (String w : categoryDocuments.get(cat).getWords()) {
-                        
-                        totalWords += categoryDocuments.get(cat).getWeight(w);
-                    }
-                    
-                    // Aggiunta della coppia <Categoria, probabilità> all'interno della Map che si
-                    // sta costruendo
-                    prob.add(new CategoryEntry(cat, freq / totalWords));
+        // freq e totalWords sono Float perché le frequenze nelle BoW sono memorizzate così
+        Float freq;
+        Float totalWords;
+
+        // Viene avviata la fase finale di training: per ogni parola nel vocabolario
+        // viene memorizzata una lista di coppie  <categoria, probabilità>
+        c = 0;
+        for (String word : vocabulary) {
+
+            termCategoryProb.put(word, new HashMap<String, Float>(categoryDocuments.keySet().size()));
+            Map<String, Float> prob = termCategoryProb.get(word);
+
+            for (String cat : categoryDocuments.keySet()) {
+
+                // viene applicata la correzione di Laplace durante l'avvaloramento di freq
+                freq = categoryDocuments.get(cat).getWeight(word);
+                freq = ((freq == null) ? 1f : freq + 1);
+
+                totalWords = (float) vocabulary.size();
+                for (String w : categoryDocuments.get(cat).getWords()) {
+
+                    totalWords += categoryDocuments.get(cat).getWeight(w);
                 }
+
+                // Aggiunta della coppia <Categoria, probabilità> all'interno della Map che si
+                // sta costruendo
+                prob.put(cat, freq / totalWords);
+            }
+            c++;
+            if (c % 100 == 0) {
+                System.out.println("Calculated probabilities for: " + c + " /" + vocabulary.size() + " words");
             }
         }
     }
@@ -109,9 +124,14 @@ public class NaiveBayes extends TextCategorization {
                 for (String w : d.getBow().getWords()) {
                     
                     // abba perdoname por mi programmazione loca
-                    probability += Math.log(termCategoryProb.get(w).stream().filter(e -> 
-                                e.getCategory().equals(cat)).findFirst().get().getScore());
+                    if (termCategoryProb.containsKey(w)) {
+                    
+                        probability += Math.log(termCategoryProb.get(w).get(cat));
+                    } else {
+                        
+                        probability += Math.log(1 / vocabulary.size());
                     }
+                }
                 cats.add(new CategoryEntry(cat, probability));
                 }
             

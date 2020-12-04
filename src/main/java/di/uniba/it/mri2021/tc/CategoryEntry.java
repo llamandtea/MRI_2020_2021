@@ -40,4 +40,9 @@ public class CategoryEntry implements Comparable<CategoryEntry> {
     public int compareTo(CategoryEntry o) {
         return Float.compare(score, o.score);
     }
+    
+    public boolean equals(Object w) {
+        
+        return category.equals(w);
+    }
 }

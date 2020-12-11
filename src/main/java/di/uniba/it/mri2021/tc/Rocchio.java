@@ -21,6 +21,8 @@ import java.util.Map;
 public class Rocchio extends TextCategorization {
 
     private Map<String, BoW> centroids = new HashMap();
+    private float alfa = 0.8f;
+    private float beta = 0.2f;
 
     @Override
     public void train(List<DatasetExample> trainingset) throws IOException {
@@ -39,16 +41,22 @@ public class Rocchio extends TextCategorization {
             BoWUtils.scalarProduct(1/count.get(c).floatValue(), centroids.get(c));
         }
         
+        // Implementare il calcolo del centroide direttamente nel while precedente
+        // per efficienza
         for (String c : centroids.keySet()) {
          
                 BoW toSubtract = new BoW();
-                for (String s : centroids.keySet()) {
-                    if (!s.equals(c)) {
+                for (DatasetExample e : trainingset) {
+                    
+                    if  (!e.getCategory().equals(c)) {
                         
-                        BoWUtils.add(toSubtract, centroids.get(s));
+                        toSubtract = BoWUtils.add(toSubtract, e.getBow());
                     }
                 }
+                BoWUtils.scalarProduct(1/(1 - count.get(c).floatValue()), toSubtract);
                 
+                BoWUtils.scalarProduct(alfa, centroids.get(c));
+                BoWUtils.scalarProduct(beta, toSubtract);
                 centroids.put(c, BoWUtils.subtract(centroids.get(c), toSubtract));
         }
     }

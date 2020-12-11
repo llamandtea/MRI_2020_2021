@@ -6,7 +6,10 @@
 package di.uniba.it.mri2021.tc;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -18,6 +21,36 @@ public abstract class TextCategorization {
 
     public abstract List<String> test(List<DatasetExample> testingset) throws IOException;
 
+    public Map<String, Map<String, Integer>> getConfusionMatrix(List<DatasetExample> testingset, List<String> predictions)
+            throws IllegalArgumentException {
+        
+        if (testingset.size() != predictions.size()) {
+            throw new IllegalArgumentException("Incompatible predictions");
+        }
+        
+        
+        Map<String, Map<String, Integer>> confusionMatrix = new HashMap<String, Map<String, Integer>>();
+        int size = predictions.size();
+        DatasetExample e = null;
+        for (int i = 0; i < size; i++) {
+            
+            e = testingset.get(i);
+            if (!confusionMatrix.containsKey(e.getCategory())) {
+                
+                confusionMatrix.put(e.getCategory(), new HashMap<String, Integer>());
+            }
+            
+            Integer currValue = confusionMatrix.get(e.getCategory()).get(predictions.get(i));
+            if (currValue == null) {
+                
+                currValue = 0;
+            }
+            confusionMatrix.get(e.getCategory()).put(predictions.get(i), currValue + 1);
+        }
+        
+        return confusionMatrix;
+    }
+    
     public double accuracy(List<DatasetExample> testingset, List<String> predicted) throws IllegalArgumentException {
         if (testingset.size() != predicted.size()) {
             throw new IllegalArgumentException("Incompatible predictions");
@@ -34,5 +67,7 @@ public abstract class TextCategorization {
             return correct / (double) predicted.size();
         }
     }
+    
+    
 
 }

@@ -127,11 +127,7 @@ public class NaiveBayes extends TextCategorization {
                     if (termCategoryProb.containsKey(w)) {
                     
                         probability += Math.log(termCategoryProb.get(w).get(cat));
-                    } else {
-                        
-                        // sommando come da algoritmo 1/|V| la precisione cala drasticamente (dunno why)
-                        probability += 0;
-                    }
+                    } 
                 }
                 cats.add(new CategoryEntry(cat, probability));
                 }

@@ -21,8 +21,8 @@ import java.util.Map;
 public class Rocchio extends TextCategorization {
 
     private Map<String, BoW> centroids = new HashMap();
-    private float alfa = 0.8f;
-    private float beta = 0.2f;
+    private float alfa = 0.75f;
+    private float beta = 0.25f;
 
     @Override
     public void train(List<DatasetExample> trainingset) throws IOException {

@@ -16,20 +16,25 @@ import java.util.Map;
  * @author pierpaolo
  */
 public abstract class TextCategorization {
+    
+    Map<String, Map<String, Integer>> confusionMatrix = new HashMap<String, Map<String, Integer>>();
 
     public abstract void train(List<DatasetExample> trainingset) throws IOException;
 
     public abstract List<String> test(List<DatasetExample> testingset) throws IOException;
 
-    public Map<String, Map<String, Integer>> getConfusionMatrix(List<DatasetExample> testingset, List<String> predictions)
+    public Map<String, Map<String, Integer>> generateConfusionMatrix(List<DatasetExample> testingset, List<String> predictions)
             throws IllegalArgumentException {
+        
+        if (confusionMatrix != null) {
+            
+            confusionMatrix = new HashMap<String, Map<String, Integer>>();
+        }
         
         if (testingset.size() != predictions.size()) {
             throw new IllegalArgumentException("Incompatible predictions");
         }
         
-        
-        Map<String, Map<String, Integer>> confusionMatrix = new HashMap<String, Map<String, Integer>>();
         int size = predictions.size();
         DatasetExample e = null;
         for (int i = 0; i < size; i++) {
@@ -51,23 +56,139 @@ public abstract class TextCategorization {
         return confusionMatrix;
     }
     
-    public double accuracy(List<DatasetExample> testingset, List<String> predicted) throws IllegalArgumentException {
-        if (testingset.size() != predicted.size()) {
-            throw new IllegalArgumentException("Incompatible predictions");
-        }
+    public double accuracy(List<String> predictions) throws IllegalArgumentException {
+        
         double correct = 0;
-        for (int i = 0; i < predicted.size(); i++) {
-            if (predicted.get(i).equals(testingset.get(i).getCategory())) {
-                correct++;
-            }
+        for (String cat : confusionMatrix.keySet()) {
+            
+            correct += confusionMatrix.get(cat).get(cat);
         }
-        if (predicted.isEmpty()) {
+        
+        if (confusionMatrix.keySet().isEmpty()) {
+            
             return correct;
         } else {
-            return correct / (double) predicted.size();
+            return correct / (double) predictions.size();
         }
     }
     
-    
+        public double getMicroPrecision() {
+            
+            double truePositives = 0;
+            double falsePositives  = 0;
+            for (String cat : confusionMatrix.keySet()) {
+                
+                // Recupero dei veri positivi
+                truePositives += confusionMatrix.get(cat).get(cat);
+                
+                // Recupero dei falsi positivi
+                for (String c : confusionMatrix.keySet()) {
+                    
+                    if (!c.equals(cat) && confusionMatrix.get(c).get(cat) != null) {
+                        
+                            falsePositives += confusionMatrix.get(c).get(cat);
+                        }
+                    }
+                }
+                
+                return truePositives / (truePositives + falsePositives);
+        }
+        
+        public double getMicroRecall() {
+            
+            double truePositives = 0d;
+            double falseNegatives = 0d;
+            for (String cat : confusionMatrix.keySet()) {
+                
+                // Recupero dei veri positivi
+                truePositives += confusionMatrix.get(cat).get(cat);
+                
+                // Recupero dei falsi negativi
+                for (String c : confusionMatrix.get(cat).keySet()) {
+                    
+                    if (!c.equals(cat)) {
+                        
+                        falseNegatives += confusionMatrix.get(cat).get(c);
+                    }
+                }
+            }
+            
+            return truePositives / (truePositives + falseNegatives);
+        }
 
+        public double getMacroPrecision() {
+            
+            double num = 0d;
+            
+            for (String cat : confusionMatrix.keySet()) {
+                
+                double currPrecision = 0d;
+                double denom = 0d;
+                
+                currPrecision += (confusionMatrix.get(cat).get(cat) != null) ? confusionMatrix.get(cat).get(cat) : 0;
+                for (String c : confusionMatrix.keySet()) {
+                    
+                    if(!c.equals(cat)) {
+                        
+                        denom += (confusionMatrix.get(c).get(cat) != null) ? confusionMatrix.get(c).get(cat) : 0;
+                    }
+                }
+                currPrecision = currPrecision / (currPrecision + denom);
+                num += currPrecision;
+            }
+            
+            return num / confusionMatrix.keySet().size();
+        }
+        
+        public double getMacroRecall() {
+            
+            double num = 0d;
+            
+            for (String cat : confusionMatrix.keySet()) {
+                
+                double currRecall = 0d;
+                double denom = 0d;
+                
+                currRecall += (confusionMatrix.get(cat).get(cat) != null) ? confusionMatrix.get(cat).get(cat) : 0;
+                for (String c : confusionMatrix.get(cat).keySet()) {
+                    
+                    if(!c.equals(cat)) {
+                        
+                        denom += (confusionMatrix.get(c).get(cat) != null) ? confusionMatrix.get(c).get(cat) : 0;
+                    }
+                }
+                currRecall = currRecall / (currRecall + denom);
+                num += currRecall;
+            }
+            
+            return num / confusionMatrix.keySet().size();
+        }
+        
+        public double microFMeasure() {
+            
+            double precision = getMicroPrecision();
+            double recall = getMicroRecall();
+            return ((2 * precision * recall) / (precision + recall));
+        }
+        
+        public double microFMeasure(double boost) {
+            
+            double precision = getMicroPrecision();
+            double recall = getMicroRecall();
+            return (((1 + Math.pow(boost, 2))) * precision * recall) / ((Math.pow(boost, 2) * precision) + recall);
+        }
+        
+        public double macroFMeasure() {
+            
+            double precision = getMacroPrecision();
+            double recall = getMacroRecall();
+            return ((2 * precision * recall) / (precision + recall));
+        }
+        
+        public double macroFMeasure(double boost) {
+            
+            double precision = getMacroPrecision();
+            double recall = getMacroRecall();
+            return (((1 + Math.pow(boost, 2))) * precision * recall) / ((Math.pow(boost, 2) * precision) + recall);
+        }
 }

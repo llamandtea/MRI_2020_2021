@@ -26,7 +26,19 @@ public class TestTC {
         DatasetReader ts=new CSVDatasetReader();
         List<DatasetExample> testset = ts.getExamples(new File("resources/TC/test.csv"));
         List<String> p = tc.test(testset);
-        System.out.println(tc.accuracy(testset, p));
+        tc.generateConfusionMatrix(testset, p);
+        System.out.println(tc.accuracy(p));
+        
+        System.out.println("Micro Precision: " + tc.getMicroPrecision());
+        System.out.println("Micro Recall: " + tc.getMicroRecall());
+        System.out.println("Macro Precision: " + tc.getMacroPrecision());
+        System.out.println("Macro Recall: " + tc.getMacroRecall());
+        System.out.println("Micro F Measure: " + tc.microFMeasure());
+        System.out.println("Micro F Measure (precision boost): " + tc.microFMeasure(0.45d));
+        System.out.println("Micro F Measure (recall boost): " + tc.microFMeasure(1.45d));
+        System.out.println("Macro F Measure: " + tc.macroFMeasure());
+        System.out.println("Macro F Measure (precision boost): " + tc.macroFMeasure(0.45d));
+        System.out.println("Macro F Measure (recall boost): " + tc.macroFMeasure(1.45d));
     }
     
 }

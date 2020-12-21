@@ -26,6 +26,7 @@ public abstract class TextCategorization {
     public Map<String, Map<String, Integer>> generateConfusionMatrix(List<DatasetExample> testingset, List<String> predictions)
             throws IllegalArgumentException {
         
+        // se è stata già creata una matrice, ne viene costruita una nuova
         if (confusionMatrix != null) {
             
             confusionMatrix = new HashMap<String, Map<String, Integer>>();
@@ -79,7 +80,7 @@ public abstract class TextCategorization {
             for (String cat : confusionMatrix.keySet()) {
                 
                 // Recupero dei veri positivi
-                truePositives += confusionMatrix.get(cat).get(cat);
+                truePositives += (confusionMatrix.get(cat).get(cat) != null) ? confusionMatrix.get(cat).get(cat) : 0d;
                 
                 // Recupero dei falsi positivi
                 for (String c : confusionMatrix.keySet()) {
@@ -101,7 +102,7 @@ public abstract class TextCategorization {
             for (String cat : confusionMatrix.keySet()) {
                 
                 // Recupero dei veri positivi
-                truePositives += confusionMatrix.get(cat).get(cat);
+                truePositives += (confusionMatrix.get(cat).get(cat) != null) ? confusionMatrix.get(cat).get(cat) : 0d;
                 
                 // Recupero dei falsi negativi
                 for (String c : confusionMatrix.get(cat).keySet()) {

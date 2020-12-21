@@ -27,8 +27,8 @@ public class TestTC {
         List<DatasetExample> testset = ts.getExamples(new File("resources/TC/test.csv"));
         List<String> p = tc.test(testset);
         tc.generateConfusionMatrix(testset, p);
-        System.out.println(tc.accuracy(p));
         
+        System.out.println("Accuracy:" + tc.accuracy(p));
         System.out.println("Micro Precision: " + tc.getMicroPrecision());
         System.out.println("Micro Recall: " + tc.getMicroRecall());
         System.out.println("Macro Precision: " + tc.getMacroPrecision());

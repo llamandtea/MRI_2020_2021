@@ -62,7 +62,7 @@ public abstract class TextCategorization {
         double correct = 0;
         for (String cat : confusionMatrix.keySet()) {
             
-            correct += confusionMatrix.get(cat).get(cat);
+            correct += (confusionMatrix.get(cat).get(cat) != null) ? confusionMatrix.get(cat).get(cat) : 0d;
         }
         
         if (confusionMatrix.keySet().isEmpty()) {
@@ -92,7 +92,7 @@ public abstract class TextCategorization {
                     }
                 }
                 
-                return truePositives / (truePositives + falsePositives);
+                return (truePositives + falsePositives == 0) ? 0d :  truePositives / (truePositives + falsePositives);
         }
         
         public double getMicroRecall() {
@@ -114,7 +114,7 @@ public abstract class TextCategorization {
                 }
             }
             
-            return truePositives / (truePositives + falseNegatives);
+            return (truePositives + falseNegatives == 0) ? 0d : truePositives / (truePositives + falseNegatives);
         }
 
         public double getMacroPrecision() {
@@ -138,7 +138,7 @@ public abstract class TextCategorization {
                 num += currPrecision;
             }
             
-            return num / confusionMatrix.keySet().size();
+            return (num == 0) ? 0d : num / confusionMatrix.keySet().size();
         }
         
         public double getMacroRecall() {
@@ -162,7 +162,7 @@ public abstract class TextCategorization {
                 num += currRecall;
             }
             
-            return num / confusionMatrix.keySet().size();
+            return (num == 0) ? 0d : num / confusionMatrix.keySet().size();
         }
         
         public double microFMeasure() {

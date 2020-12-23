@@ -130,6 +130,8 @@ public class UserBasedIF extends CollaborativeIF {
                         
                         case PEARSON:
                                     sim = pearsonCorrelation(user.getUserId(), r.getUserId());
+                                    // transform correlation in similarity
+                                    sim = (1 + sim) / 2;
                                     break;
                                     
                         case COSINE:
@@ -140,8 +142,6 @@ public class UserBasedIF extends CollaborativeIF {
                                     break;
                     }
                     
-                    // transform correlation in similarity
-                    sim = (1 + sim) / 2;
                     neigh.add(new Neighborhood(r.getUserId(), sim, r.getRating()));
                 } catch (Exception ex) {
                     Logger.getLogger(UserBasedIF.class.getName()).log(Level.SEVERE, null, ex);

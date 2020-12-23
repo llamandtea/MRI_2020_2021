@@ -29,7 +29,10 @@ public class RunFiltering {
             String userId = "3162";
             System.out.println("Recommendations for user " + userId);
             long time = System.currentTimeMillis();
-            List<ItemPrediction> predictions = userBased.getPredictions(new User(userId));
+            
+            CollaborativeIF.Similarity toUse = CollaborativeIF.Similarity.COSINE;
+                
+            List<ItemPrediction> predictions = userBased.getPredictions(new User(userId), toUse);
             Map<String, Item> itemsMap = IFDatasetUtils.itemListToMap(d.getItems());
             int top = 20;
             for (int i = 0; i < top && i < predictions.size(); i++) {
@@ -39,7 +42,7 @@ public class RunFiltering {
             System.out.println("Time: " + (System.currentTimeMillis() - time));
 
             userId = "1";
-            predictions = userBased.getPredictions(new User(userId));
+            predictions = userBased.getPredictions(new User(userId), toUse);
             System.out.println("Recommendations for user " + userId);
             time = System.currentTimeMillis();
             itemsMap = IFDatasetUtils.itemListToMap(d.getItems());
@@ -50,7 +53,7 @@ public class RunFiltering {
             System.out.println("Time: " + (System.currentTimeMillis() - time));
             
             userId = "2164";
-            predictions = userBased.getPredictions(new User(userId));
+            predictions = userBased.getPredictions(new User(userId), toUse);
             System.out.println("Recommendations for user " + userId);
             time = System.currentTimeMillis();
             itemsMap = IFDatasetUtils.itemListToMap(d.getItems());

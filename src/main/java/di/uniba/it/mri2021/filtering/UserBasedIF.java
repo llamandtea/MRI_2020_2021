@@ -18,7 +18,7 @@ import java.util.logging.Logger;
  * @author pierpaolo
  */
 public class UserBasedIF extends CollaborativeIF {
-
+    
     private int k = 20;
 
     private Map<String, List<Rating>> ratingsByUser = null;
@@ -84,17 +84,64 @@ public class UserBasedIF extends CollaborativeIF {
         }
     }
 
+    public double cosineSimilarity(String userId1, String userId2) throws Exception {
+        
+        List<Rating> r1 = ratingsByUser.get(userId1);
+        List<Rating> r2 = ratingsByUser.get(userId2);
+        if (r1 == null || r2 == null) {
+            
+            throw new Exception("No ratings");
+        }
+        List<String> co = IFDatasetUtils.coRatedItems(r1, r2);
+        if (co.isEmpty()) {
+            return 0;
+        } else {
+            
+            Map<String, Integer> m1 = IFDatasetUtils.ratingsToMapByItem(r1);
+            Map<String, Integer> m2 = IFDatasetUtils.ratingsToMapByItem(r2);
+            double ar1 = getAverageScore(userId1);
+            double ar2 = getAverageScore(userId2);
+            
+            double num = 0d;
+            double normalizedV1 = 0d;
+            double normalizedV2 = 0d;
+            for (String item : co) {
+                
+                num += m1.get(item) * m2.get(item)  ;
+                normalizedV1 += Math.pow((m1.get(item) - ar1), 2);
+                normalizedV2 += Math.pow((m2.get(item) - ar2), 2);
+            }
+            
+            return ((normalizedV1 == 0 || normalizedV2 == 0)) ? 0d : (num / (Math.sqrt(normalizedV1) * Math.sqrt(normalizedV2)));
+        }
+    }
+    
     @Override
-    public double getPrediction(User user, Item item) {
+    public double getPrediction(User user, Item item, Similarity toUse) {
         // get users that rated the item
         List<Rating> ratings = ratingsByItem.get(item.getItemID());
         if (ratings != null) {
             List<Neighborhood> neigh = new ArrayList<>();
             for (Rating r : ratings) {
                 try {
-                    double c = pearsonCorrelation(user.getUserId(), r.getUserId());
+                    
+                    double sim = 0d;
+                    switch (toUse) {
+                        
+                        case PEARSON:
+                                    sim = pearsonCorrelation(user.getUserId(), r.getUserId());
+                                    break;
+                                    
+                        case COSINE:
+                                    sim = cosineSimilarity(user.getUserId(), r.getUserId());
+                                    break;
+                                    
+                        default:
+                                    break;
+                    }
+                    
                     // transform correlation in similarity
-                    double sim = (1 + c) / 2;
+                    sim = (1 + sim) / 2;
                     neigh.add(new Neighborhood(r.getUserId(), sim, r.getRating()));
                 } catch (Exception ex) {
                     Logger.getLogger(UserBasedIF.class.getName()).log(Level.SEVERE, null, ex);
@@ -125,7 +172,7 @@ public class UserBasedIF extends CollaborativeIF {
     }
 
     @Override
-    public List<ItemPrediction> getPredictions(User user) {
+    public List<ItemPrediction> getPredictions(User user, Similarity toUse) {
         List<ItemPrediction> predictions = new ArrayList<>();
         // get items rated by the user and map them
         List<Rating> userRatings = ratingsByUser.get(user.getUserId());
@@ -134,7 +181,7 @@ public class UserBasedIF extends CollaborativeIF {
             // for each item not rated by the user
             if (!ratingsToMap.containsKey(item.getItemID())) {
                 // get prediction
-                double prediction = getPrediction(user, item);
+                double prediction = getPrediction(user, item, toUse);
                 predictions.add(new ItemPrediction(item.getItemID(), prediction));
             }
         }
@@ -142,5 +189,5 @@ public class UserBasedIF extends CollaborativeIF {
         Collections.sort(predictions, Collections.reverseOrder());
         return predictions;
     }
-
+    
 }

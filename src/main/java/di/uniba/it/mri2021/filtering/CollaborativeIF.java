@@ -14,7 +14,17 @@ import java.util.List;
 public abstract class CollaborativeIF {
 
     private final IFDataset dataset;
-
+    
+    /**
+     * Enumerazione per indicare la similarità da utilizzare durante il
+     * calcolo delle predizioni
+     */
+    public static enum Similarity {
+        
+        PEARSON,
+        COSINE
+    }
+    
     public CollaborativeIF(IFDataset dataset) {
         this.dataset = dataset;
     }
@@ -23,8 +33,8 @@ public abstract class CollaborativeIF {
         return dataset;
     }
 
-    public abstract double getPrediction(User user, Item item);
+    public abstract double getPrediction(User user, Item item, Similarity toUse);
 
-    public abstract List<ItemPrediction> getPredictions(User user);
+    public abstract List<ItemPrediction> getPredictions(User user, Similarity toUse);
 
 }

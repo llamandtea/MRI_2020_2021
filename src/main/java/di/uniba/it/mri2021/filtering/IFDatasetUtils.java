@@ -76,11 +76,50 @@ public class IFDatasetUtils {
         ids1.retainAll(ids2);
         return new ArrayList<>(ids1);
     }
+    
+    /**
+     * Ritorna la lista di utenti che ha valutato sia l'item associato
+     * alla prima lista che l'item associato alla seconda.
+     * @param r1
+     * @param r2
+     * @return 
+     */
+    public static List<String> getSharedUsers(List<Rating> r1, List<Rating> r2) {
+    
+        Set<String> firstItemUsers = new HashSet<>();
+        for (Rating r : r1) {
+            
+            if (!firstItemUsers.contains(r.getUserId())) {
+                
+                firstItemUsers.add(r.getUserId());
+            }
+        }
+        
+        Set<String> secondItemUsers = new HashSet<>();
+        for (Rating r : r2) {
+            
+            if (!secondItemUsers.contains(r.getUserId())) {
+                
+                secondItemUsers.add(r.getUserId());
+            }
+        }
+        
+        firstItemUsers.retainAll(secondItemUsers);
+        return new ArrayList<String>(firstItemUsers);
+    }
 
     public static Map<String, Integer> ratingsToMapByItem(List<Rating> ratings) {
         Map<String, Integer> map = new HashMap<>();
         for (Rating r : ratings) {
             map.put(r.getItemId(), r.getRating());
+        }
+        return map;
+    }
+    
+    public static Map<String, Integer> ratingsToMapByUser(List<Rating> ratings) {
+        Map<String, Integer> map = new HashMap<>();
+        for (Rating r : ratings) {
+            map.put(r.getUserId(), r.getRating());
         }
         return map;
     }

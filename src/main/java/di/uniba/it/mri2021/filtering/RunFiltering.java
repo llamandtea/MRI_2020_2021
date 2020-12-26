@@ -25,7 +25,7 @@ public class RunFiltering {
         try {
             IFDataset d = new Movielens();
             d.load(new File("resources/IF/ml-1m/"));
-            CollaborativeIF userBased = new UserBasedIF(d);
+            CollaborativeIF userBased = new ItemBasedIF(d);
             String userId = "3162";
             System.out.println("Recommendations for user " + userId);
             long time = System.currentTimeMillis();

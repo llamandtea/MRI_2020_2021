@@ -22,9 +22,7 @@ public class UserBasedIF extends CollaborativeIF {
     private int k = 20;
 
     private Map<String, List<Rating>> ratingsByUser = null;
-
     private Map<String, List<Rating>> ratingsByItem = null;
-
     private Map<String, Double> averageScore = null;
 
     public UserBasedIF(IFDataset dataset) {

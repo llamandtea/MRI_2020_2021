@@ -10,8 +10,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -21,7 +19,7 @@ public class ItemBasedIF extends CollaborativeIF {
 
     private Map<String, List<Rating>> ratingsByUser = null;
     private Map<String, List<Rating>> ratingsByItem = null;
-    private Map<String, Double> averageScore = new HashMap<>();;
+    private Map<String, Double> averageScore = new HashMap<>();
     
     public ItemBasedIF(IFDataset dataset) {
         super(dataset);
